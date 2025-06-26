@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/PaperExamGrader.iml" filepath="$PROJECT_DIR$/.idea/PaperExamGrader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../go-project/services/postService/.idea/postService.iml" filepath="$PROJECT_DIR$/../go-project/services/postService/.idea/postService.iml" />
     </modules>
   </component>
 </project>
