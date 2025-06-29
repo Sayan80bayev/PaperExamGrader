@@ -8,4 +8,5 @@ type Exam struct {
 	ClassID   uint    `json:"class_id"`
 	Class     Class   `json:"class"`
 	Grade     float32 `json:"grade,omitempty"`
+	PdfURL    string  `json:"pdf_url"`
 }

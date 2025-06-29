@@ -1,23 +1,25 @@
 package bootstrap
 
 import (
-	"PaperExamGrader/internal/config"
-	"PaperExamGrader/pkg/logging"
+	"PaperExamGrader/internal/storage"
 	"database/sql"
 	"errors"
 	"github.com/golang-migrate/migrate/v4"
-	migrateps "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/sirupsen/logrus"
+
+	migrateps "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/minio/minio-go/v7"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"PaperExamGrader/internal/config"
+	"PaperExamGrader/pkg/logging"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 type Container struct {
-	DB *gorm.DB
-	//Redis        *redis.Client
-	//Minio        *minio.Client
-	//Producer     messaging.Producer
-	//Consumer     messaging.Consumer
+	DB           *gorm.DB
+	Minio        *minio.Client
 	Config       *config.Config
 	Repositories map[string]interface{}
 }
@@ -31,14 +33,20 @@ func Init() (*Container, error) {
 		return nil, err
 	}
 
+	// Инициализация зависимостей
+	db, err := initDatabase(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	minioClient := storage.Init(cfg)
+
+	logger.Info("✅ Dependencies initialized successfully")
+
 	return &Container{
-		DB: db,
-		//Redis:        redisClient,
-		//Minio:        minioClient,
-		//Producer:     producer,
-		//Consumer:     consumer,
+		DB:     db,
+		Minio:  minioClient,
 		Config: cfg,
-		//Repositories: repositories,
 	}, nil
 }
 
