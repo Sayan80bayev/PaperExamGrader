@@ -27,7 +27,7 @@ func Init(cfg *config.Config) *minio.Client {
 	return minioClient
 }
 
-func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.Config, minioClient *minio.Client) (string, error) {
+func uploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.Config, minioClient *minio.Client) (string, error) {
 	if file == nil || header == nil {
 		return "", errors.New("invalid file")
 	}
@@ -36,6 +36,7 @@ func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.C
 	objectName := header.Filename
 	contentType := header.Header.Get("Content-Type")
 	bucketName := cfg.MinioBucket
+	minioEndpoint := cfg.MinioEndpoint
 
 	_, err := minioClient.PutObject(
 		context.Background(),
@@ -46,20 +47,20 @@ func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.C
 		minio.PutObjectOptions{ContentType: contentType},
 	)
 	if err != nil {
-		return "", errors.New("failed to upload file")
+		return "", errors.New("failed to uploadFile file")
 	}
 
-	fileURL := fmt.Sprintf("http://localhost:9000/%s/%s", bucketName, objectName)
+	fileURL := fmt.Sprintf("%s/%s/%s", minioEndpoint, bucketName, objectName)
 
 	return fileURL, nil
 }
 
-func DeleteFileByURL(fileURL string, minioClient *minio.Client) error {
+func deleteFile(fileURL string, cfg *config.Config, minioClient *minio.Client) error {
 	if fileURL == "" {
 		return errors.New("missing file_url parameter")
 	}
 
-	prefix := "http://localhost:9000/"
+	prefix := cfg.MinioEndpoint + "/"
 	if !strings.HasPrefix(fileURL, prefix) {
 		return errors.New("invalid file_url format")
 	}
@@ -75,7 +76,7 @@ func DeleteFileByURL(fileURL string, minioClient *minio.Client) error {
 
 	err := minioClient.RemoveObject(context.Background(), bucketName, objectName, minio.RemoveObjectOptions{})
 	if err != nil {
-		return errors.New("failed to delete file")
+		return errors.New("failed to deleteFile file")
 	}
 
 	return nil
@@ -87,9 +88,9 @@ type MinioStorage struct {
 }
 
 func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHeader) (string, error) {
-	return UploadFile(file, header, s.cfg, s.client)
+	return uploadFile(file, header, s.cfg, s.client)
 }
 
 func (s *MinioStorage) DeleteFileByURL(fileURL string) error {
-	return DeleteFileByURL(fileURL, s.client)
+	return deleteFile(fileURL, s.cfg, s.client)
 }

@@ -18,10 +18,9 @@ import (
 )
 
 type Container struct {
-	DB           *gorm.DB
-	Minio        *minio.Client
-	Config       *config.Config
-	Repositories map[string]interface{}
+	DB     *gorm.DB
+	Minio  *minio.Client
+	Config *config.Config
 }
 
 func Init() (*Container, error) {
@@ -59,16 +58,16 @@ func initDatabase(cfg *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	sqlDB, err := db.DB()
-	if err != nil {
-		logger.Fatal("Error getting generic DB object:", err)
-		return nil, err
-	}
-
-	g, err2, done := initMigrations(sqlDB, logger)
-	if done {
-		return g, err2
-	}
+	//sqlDB, err := db.DB()
+	//if err != nil {
+	//	logger.Fatal("Error getting generic DB object:", err)
+	//	return nil, err
+	//}
+	//
+	//g, err2, done := initMigrations(sqlDB, logger)
+	//if done {
+	//	return g, err2
+	//}
 
 	return db, nil
 }
