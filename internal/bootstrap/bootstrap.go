@@ -32,7 +32,6 @@ func Init() (*Container, error) {
 		return nil, err
 	}
 
-	// Инициализация зависимостей
 	db, err := initDatabase(cfg)
 	if err != nil {
 		return nil, err
