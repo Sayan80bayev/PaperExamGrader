@@ -62,7 +62,7 @@ func initDatabase(cfg *config.Config) (*gorm.DB, error) {
 	//	logger.Fatal("Error getting generic DB object:", err)
 	//	return nil, err
 	//}
-	//
+
 	//g, err2, done := initMigrations(sqlDB, logger)
 	//if done {
 	//	return g, err2
