@@ -1,4 +1,4 @@
-// FILEPATH: /Users/sayanseksenbaev/Programming/PaperExamGrader/internal/repository/exam_repository.go
+// FILEPATH: /Users/sayanseksenbaev/Programming/PaperExamGrader/internal/repository/class_repository.go
 
 package repository
 
@@ -13,28 +13,28 @@ type ExamRepository struct {
 	db *gorm.DB
 }
 
-var examRepoInstance *ExamRepository
+var examRepository *ExamRepository
 var examRepoOnce sync.Once
 
 func NewExamRepository(db *gorm.DB) *ExamRepository {
 	examRepoOnce.Do(func() {
-		examRepoInstance = &ExamRepository{db: db}
+		examRepository = &ExamRepository{db: db}
 	})
-	return examRepoInstance
+	return examRepository
 }
 
-func (r *ExamRepository) Create(exam *model.Exam) error {
-	return r.db.Create(exam).Error
+func (r *ExamRepository) Create(class *model.Exam) error {
+	return r.db.Create(class).Error
 }
 
 func (r *ExamRepository) GetByID(id uint) (*model.Exam, error) {
-	var exam model.Exam
-	err := r.db.First(&exam, id).Error
-	return &exam, err
+	var class model.Exam
+	err := r.db.First(&class, id).Error
+	return &class, err
 }
 
-func (r *ExamRepository) Update(exam *model.Exam) error {
-	return r.db.Save(exam).Error
+func (r *ExamRepository) Update(class *model.Exam) error {
+	return r.db.Save(class).Error
 }
 
 func (r *ExamRepository) Delete(id uint) error {
@@ -42,7 +42,7 @@ func (r *ExamRepository) Delete(id uint) error {
 }
 
 func (r *ExamRepository) List() ([]model.Exam, error) {
-	var exams []model.Exam
-	err := r.db.Find(&exams).Error
-	return exams, err
+	var classes []model.Exam
+	err := r.db.Find(&classes).Error
+	return classes, err
 }

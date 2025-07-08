@@ -1,4 +1,4 @@
-// FILEPATH: /Users/sayanseksenbaev/Programming/PaperExamGrader/internal/service/exam_service.go
+// FILEPATH: /Users/sayanseksenbaev/Programming/PaperExamGrader/internal/service/class_service.go
 
 package service
 
@@ -12,7 +12,7 @@ type ExamService struct {
 	repo *repository.ExamRepository
 }
 
-func NewExamService(db *gorm.DB) *ExamService {
+func NewClassService(db *gorm.DB) *ExamService {
 	return &ExamService{
 		repo: repository.NewExamRepository(db),
 	}

@@ -1,4 +1,4 @@
 -- +migrate Down
 DROP TABLE IF EXISTS images;
+DROP TABLE IF EXISTS answers;
 DROP TABLE IF EXISTS exams;
-DROP TABLE IF EXISTS classes;

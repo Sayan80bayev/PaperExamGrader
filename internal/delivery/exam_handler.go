@@ -33,7 +33,7 @@ func (h *ExamHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, exam)
 }
 
-// GetByID returns an exam by ID
+// GetByID returns a exam by ID
 func (h *ExamHandler) GetByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -68,7 +68,7 @@ func (h *ExamHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, exam)
 }
 
-// Delete deletes an exam by ID
+// Delete deletes a exam by ID
 func (h *ExamHandler) Delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -82,12 +82,12 @@ func (h *ExamHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// List returns all exams
+// List returns all exames
 func (h *ExamHandler) List(c *gin.Context) {
-	exams, err := h.service.List()
+	exames, err := h.service.List()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, exams)
+	c.JSON(http.StatusOK, exames)
 }

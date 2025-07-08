@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupExamRoutes(r *gin.Engine, examService *service.ExamService) {
+func SetupExamRoutes(r *gin.Engine, examService *service.AnswerService) {
 	examHandler := delivery.NewExamHandler(examService)
 
 	examGroup := r.Group("/exams")

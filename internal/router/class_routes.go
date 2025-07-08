@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupClassRoutes(r *gin.Engine, classService *service.ClassService) {
+func SetupClassRoutes(r *gin.Engine, classService *service.ExamService) {
 	classHandler := delivery.NewClassHandler(classService)
 
 	classGroup := r.Group("/classes")
