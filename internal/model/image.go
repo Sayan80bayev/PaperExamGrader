@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Image struct {
 	gorm.Model
-	ExamID uint   `json:"exam_id"`
-	Exam   Exam   `json:"exam"`
-	URL    string `json:"url"`
+	AnswerID uint   `json:"answer_id"`
+	Answer   Answer `json:"answer"`
+	URL      string `json:"url"`
 }

@@ -35,7 +35,7 @@ services:
     ports:
       - "8082:8082"
     build:
-      context: /Users/sayanseksenbaev/Programming/go-project/services/authService/
+      context: C:\Users\Mykty\GolandProjects\authService
       dockerfile: Dockerfile
     container_name: authservice
     env_file:
