@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS exams (
                                        id SERIAL PRIMARY KEY,
                                        instructor_id INTEGER NOT NULL,
                                        crn TEXT NOT NULL,
+                                       date TEXT NOT NULL,
                                        created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP
