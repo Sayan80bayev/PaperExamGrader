@@ -15,7 +15,7 @@ import (
 var logger = logging.GetLogger()
 
 func Init(cfg *config.Config) *minio.Client {
-	endpoint := "localhost:9000"
+	endpoint := "localhost:9002"
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
 		Secure: false,
@@ -83,14 +83,14 @@ func deleteFile(fileURL string, cfg *config.Config, minioClient *minio.Client) e
 }
 
 type MinioStorage struct {
-	client *minio.Client
-	cfg    *config.Config
+	Client *minio.Client
+	Cfg    *config.Config
 }
 
 func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHeader) (string, error) {
-	return uploadFile(file, header, s.cfg, s.client)
+	return uploadFile(file, header, s.Cfg, s.Client)
 }
 
 func (s *MinioStorage) DeleteFileByURL(fileURL string) error {
-	return deleteFile(fileURL, s.cfg, s.client)
+	return deleteFile(fileURL, s.Cfg, s.Client)
 }

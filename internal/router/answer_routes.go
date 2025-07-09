@@ -1,15 +1,22 @@
 package router
 
 import (
+	"PaperExamGrader/internal/config"
 	"PaperExamGrader/internal/delivery"
+	"PaperExamGrader/internal/middleware"
+	"PaperExamGrader/internal/repository"
 	"PaperExamGrader/internal/service"
+	"PaperExamGrader/internal/storage"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func SetupAnswerRoutes(r *gin.Engine, answerService *service.AnswerService) {
+func SetupAnswerRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config, minio *storage.MinioStorage) {
+	answerRepository := repository.NewAnswerRepository(db)
+	answerService := service.NewAnswerService(answerRepository, minio)
 	handler := delivery.NewAnswerHandler(answerService)
 
-	answerGroup := r.Group("/answers")
+	answerGroup := r.Group("/answers", middleware.AuthMiddleware(cfg.JWTSecret))
 	{
 		answerGroup.POST("/upload", handler.Upload)
 		answerGroup.GET("/:id", handler.GetByID)
