@@ -1,5 +1,3 @@
-// FILEPATH: /Users/sayanseksenbaev/Programming/PaperanswersGrader/internal/router/exam_routes.go
-
 package router
 
 import (
@@ -9,14 +7,14 @@ import (
 )
 
 func SetupAnswerRoutes(r *gin.Engine, answerService *service.AnswerService) {
-	answerHandler := delivery.NewAnswerHandler(answerService)
-	
+	handler := delivery.NewAnswerHandler(answerService)
+
 	answerGroup := r.Group("/answers")
 	{
-		answerGroup.POST("/", answerHandler.Create)
-		answerGroup.GET("/:id", answerHandler.GetByID)
-		answerGroup.PUT("/:id", answerHandler.Update)
-		answerGroup.DELETE("/:id", answerHandler.Delete)
-		answerGroup.GET("/", answerHandler.List)
+		answerGroup.POST("/upload", handler.Upload)
+		answerGroup.GET("/:id", handler.GetByID)
+		answerGroup.GET("/exam/:exam_id", handler.GetByExamID)
+		answerGroup.PUT("/:id/grade", handler.UpdateGrade)
+		answerGroup.DELETE("/:id", handler.Delete)
 	}
 }
