@@ -1,4 +1,4 @@
-// FILEPATH: /Users/sayanseksenbaev/Programming/PaperanswersGrader/internal/router/exam_routes.go
+// FILEPATH: /Users/sayanseksenbaev/Programming/PaperExamGrader/internal/router/exam_routes.go
 
 package router
 
@@ -8,15 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupAnswerRoutes(r *gin.Engine, answerService *service.AnswerService) {
-	answerHandler := delivery.NewAnswerHandler(answerService)
-	
-	answerGroup := r.Group("/answers")
+func SetupExamRoutes(r *gin.Engine, examService *service.ExamService) {
+	examHandler := delivery.NewExamHandler(examService)
+
+	examGroup := r.Group("/exams")
 	{
-		answerGroup.POST("/", answerHandler.Create)
-		answerGroup.GET("/:id", answerHandler.GetByID)
-		answerGroup.PUT("/:id", answerHandler.Update)
-		answerGroup.DELETE("/:id", answerHandler.Delete)
-		answerGroup.GET("/", answerHandler.List)
+		examGroup.POST("/", examHandler.Create)
+		examGroup.GET("/:id", examHandler.GetByID)
+		examGroup.PUT("/:id", examHandler.Update)
+		examGroup.DELETE("/:id", examHandler.Delete)
+		examGroup.GET("/", examHandler.List)
 	}
 }
