@@ -4,6 +4,7 @@ import (
 	"PaperExamGrader/internal/model"
 	"PaperExamGrader/internal/repository"
 	"PaperExamGrader/internal/transport/request"
+	"PaperExamGrader/internal/transport/response"
 	"PaperExamGrader/pkg/logging"
 	"errors"
 	"gorm.io/gorm"
@@ -19,7 +20,7 @@ func NewExamService(db *gorm.DB) *ExamService {
 	}
 }
 
-func (s *ExamService) Create(req request.ExamRequest, instructorId uint) error {
+func (s *ExamService) Create(req request.Exam, instructorId uint) error {
 	if len(req.CRN) < 2 || len(req.CRN) > 6 {
 		return errors.New("CRN must be at least 2 and at most 6 characters long")
 	}
@@ -33,11 +34,22 @@ func (s *ExamService) Create(req request.ExamRequest, instructorId uint) error {
 	return s.repo.Create(exam)
 }
 
-func (s *ExamService) GetByID(id uint) (*model.Exam, error) {
-	return s.repo.GetByID(id)
+func (s *ExamService) GetByID(id uint) (*response.Exam, error) {
+	examModel, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	examResponse := &response.Exam{
+		Model: examModel.Model,
+		CRN:   examModel.CRN,
+		Date:  examModel.Date,
+	}
+
+	return examResponse, nil
 }
 
-func (s *ExamService) Update(req request.ExamRequest, examId uint, instructorId uint) error {
+func (s *ExamService) Update(req request.Exam, examId uint, instructorId uint) error {
 	var log = logging.GetLogger()
 
 	exam, err := s.repo.GetByID(examId)
@@ -49,16 +61,41 @@ func (s *ExamService) Update(req request.ExamRequest, examId uint, instructorId 
 	if exam.InstructorID != instructorId {
 		return errors.New("You are not the owner of this exam ")
 	}
+
 	exam.CRN = req.CRN
 	exam.Date = req.Date
 
 	return s.repo.Update(exam)
 }
 
-func (s *ExamService) Delete(id uint) error {
+func (s *ExamService) Delete(id uint, instructorId uint) error {
+	log := logging.GetLogger()
+
+	exam, err := s.repo.GetByID(id)
+	if exam == nil || err != nil {
+		log.Warnf("Failed to get exam by id: %d", id)
+		return errors.New("Could not found the exam ")
+	} else if exam.InstructorID != instructorId {
+		return errors.New("You are not the owner of this exam ")
+	}
+
 	return s.repo.Delete(id)
 }
 
-func (s *ExamService) List() ([]model.Exam, error) {
-	return s.repo.List()
+func (s *ExamService) List() ([]response.Exam, error) {
+	examModels, err := s.repo.List()
+	if err != nil {
+		return nil, err
+	}
+
+	examResponses := make([]response.Exam, len(examModels))
+	for i, exam := range examModels {
+		examResponses[i] = response.Exam{
+			Model: exam.Model,
+			CRN:   exam.CRN,
+			Date:  exam.Date,
+		}
+	}
+
+	return examResponses, nil
 }

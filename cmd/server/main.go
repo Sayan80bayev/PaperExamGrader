@@ -22,7 +22,7 @@ func main() {
 
 	r.Use(gin.Recovery())
 	r.Use(logging.Middleware)
-	router.SetupRoutes(r)
+	router.SetupRoutes(r, bs.DB, bs.Config)
 
 	logger.Infof("🚀 Server is running on port %s", bs.Config.Port)
 	err = r.Run(":" + bs.Config.Port)

@@ -1,6 +1,6 @@
 package request
 
-type ExamRequest struct {
+type Exam struct {
 	CRN  string `json:"crn" binding:"required"`
 	Date string `json:"date" binding:"required"`
 }
