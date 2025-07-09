@@ -36,7 +36,7 @@ func AuthMiddleware(jwtKey string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("user_id", int(userID))
+		c.Set("user_id", uint(userID))
 		c.Next()
 	}
 }

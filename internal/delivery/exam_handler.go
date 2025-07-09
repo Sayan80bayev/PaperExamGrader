@@ -3,6 +3,7 @@
 package delivery
 
 import (
+	"PaperExamGrader/internal/transport/request"
 	"net/http"
 	"strconv"
 
@@ -21,12 +22,18 @@ func NewExamHandler(service *service.ExamService) *ExamHandler {
 
 // Create creates a new exam
 func (h *ExamHandler) Create(c *gin.Context) {
-	var exam model.Exam
+	var exam request.ExamRequest
+	instructorId, exists := c.Get("user_id")
+	if exists == false {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	}
+	var instructorIdUint = instructorId.(uint)
+
 	if err := c.ShouldBindJSON(&exam); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.service.Create(&exam); err != nil {
+	if err := h.service.Create(exam, instructorIdUint); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
