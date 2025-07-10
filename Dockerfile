@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy go.mod and go.sum from the root of your project
 COPY go.mod go.sum ./
 
-RUN go mod downloadgut
+RUN go mod download
 
 # Copy the entire project (including cmd/server)
 COPY . .

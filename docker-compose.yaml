@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     container_name: authservice
     env_file:
-      - docker.env
+      - .env
     depends_on:
       - auth_db
     environment:
@@ -77,7 +77,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       PORT: ${PORT}
     env_file:
-      - docker.env
+      - .env
 volumes:
   database:
     driver: local
