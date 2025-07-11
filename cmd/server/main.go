@@ -4,6 +4,7 @@ import (
 	"PaperExamGrader/internal/bootstrap"
 	"PaperExamGrader/internal/router"
 	"PaperExamGrader/pkg/logging"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +20,15 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = logger.Out
 	r := gin.New()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	corsConfig.ExposeHeaders = []string{"Content-Length"}
+	corsConfig.AllowCredentials = true
+
+	r.Use(cors.New(corsConfig))
 
 	r.Use(gin.Recovery())
 	r.Use(logging.Middleware)
