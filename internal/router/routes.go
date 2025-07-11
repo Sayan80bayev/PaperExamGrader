@@ -13,6 +13,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		Client: minioClient,
 		Cfg:    cfg,
 	}
+	SetupBBoxRoutes(r, db)
 	SetupManualCutterRoutes(r)
 	SetupExamRoutes(r, db, cfg)
 	SetupAnswerRoutes(r, db, cfg, minio)

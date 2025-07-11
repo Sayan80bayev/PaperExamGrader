@@ -20,7 +20,6 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = logger.Out
 	r := gin.New()
-
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
@@ -29,7 +28,7 @@ func main() {
 	corsConfig.AllowCredentials = true
 
 	r.Use(cors.New(corsConfig))
-
+	r.RedirectTrailingSlash = false
 	r.Use(gin.Recovery())
 	r.Use(logging.Middleware)
 	router.SetupRoutes(r, bs.DB, bs.Config)

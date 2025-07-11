@@ -1,6 +1,8 @@
 package service
 
 import (
+	"PaperExamGrader/internal/model"
+	"encoding/json"
 	"fmt"
 	"image"
 	"log"
@@ -96,4 +98,27 @@ func cropAnswersFromPDF(pdfPath, outputDir string, bboxMap []BBoxMeta) error {
 		}
 	}
 	return nil
+}
+
+func ToBBoxMetaDB(meta BBoxMeta) (model.BBoxMetaDB, error) {
+	data, err := json.Marshal(meta.BBoxPercent)
+	if err != nil {
+		return model.BBoxMetaDB{}, err
+	}
+	return model.BBoxMetaDB{
+		Page:        meta.Page,
+		BBoxPercent: data,
+	}, nil
+}
+
+func FromBBoxMetaDB(dbMeta model.BBoxMetaDB) (BBoxMeta, error) {
+	var arr [4]float64
+	err := json.Unmarshal(dbMeta.BBoxPercent, &arr)
+	if err != nil {
+		return BBoxMeta{}, err
+	}
+	return BBoxMeta{
+		Page:        dbMeta.Page,
+		BBoxPercent: arr,
+	}, nil
 }
