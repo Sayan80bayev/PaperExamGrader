@@ -15,7 +15,9 @@ import (
 var logger = logging.GetLogger()
 
 func Init(cfg *config.Config) *minio.Client {
-	endpoint := "localhost:9002"
+	endpoint := strings.TrimPrefix(cfg.MinioEndpoint, "http://")
+	endpoint = strings.TrimPrefix(endpoint, "https://")
+
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
 		Secure: false,
