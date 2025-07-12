@@ -16,7 +16,7 @@ type ExamRepository struct {
 var examRepository *ExamRepository
 var examRepoOnce sync.Once
 
-func NewExamRepository(db *gorm.DB) *ExamRepository {
+func GetExamRepository(db *gorm.DB) *ExamRepository {
 	examRepoOnce.Do(func() {
 		examRepository = &ExamRepository{db: db}
 	})

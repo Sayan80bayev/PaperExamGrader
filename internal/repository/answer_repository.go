@@ -3,14 +3,21 @@ package repository
 import (
 	"PaperExamGrader/internal/model"
 	"gorm.io/gorm"
+	"sync"
 )
 
 type AnswerRepository struct {
 	db *gorm.DB
 }
 
-func NewAnswerRepository(db *gorm.DB) *AnswerRepository {
-	return &AnswerRepository{db: db}
+var answerRepository *AnswerRepository
+var answerRepoOnce sync.Once
+
+func GetAnswerRepository(db *gorm.DB) *AnswerRepository {
+	answerRepoOnce.Do(func() {
+		answerRepository = &AnswerRepository{db: db}
+	})
+	return answerRepository
 }
 
 // ✅ Создание нового ответа (PDF уже загружен, передаётся URL)

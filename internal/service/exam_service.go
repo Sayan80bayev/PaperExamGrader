@@ -16,7 +16,7 @@ type ExamService struct {
 
 func NewExamService(db *gorm.DB) *ExamService {
 	return &ExamService{
-		repo: repository.NewExamRepository(db),
+		repo: repository.GetExamRepository(db),
 	}
 }
 

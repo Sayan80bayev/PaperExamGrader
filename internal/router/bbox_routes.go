@@ -10,13 +10,14 @@ import (
 
 func SetupBBoxRoutes(r *gin.Engine, db *gorm.DB) {
 	bboxRepo := repository.GetBBoxRepository(db)
-	bboxService := service.NewBBoxService(bboxRepo)
+	examRepo := repository.GetExamRepository(db)
+	bboxService := service.NewBBoxService(bboxRepo, examRepo)
 	bboxHandler := delivery.NewBBoxHandler(bboxService)
 
 	api := r.Group("/api/bboxes")
 	{
 		api.POST("", bboxHandler.Create)
-		api.GET("", bboxHandler.GetAll)
+		api.GET("/:ud", bboxHandler.GetAllByExamID)
 		api.GET("/:id", bboxHandler.GetByID)
 		api.PUT("/:id", bboxHandler.Update)
 		api.DELETE("/:id", bboxHandler.Delete)

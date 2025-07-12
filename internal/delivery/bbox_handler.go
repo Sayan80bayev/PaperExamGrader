@@ -39,8 +39,11 @@ func (h *BBoxHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, input)
 }
 
-func (h *BBoxHandler) GetAll(c *gin.Context) {
-	entries, err := h.service.GetAll()
+func (h *BBoxHandler) GetAllByExamID(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	idUint := uint(id)
+
+	entries, err := h.service.GetAllByExamID(idUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

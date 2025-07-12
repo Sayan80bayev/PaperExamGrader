@@ -9,7 +9,9 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"mime/multipart"
+	"path/filepath"
 	"strings"
+	"time"
 )
 
 var logger = logging.GetLogger()
@@ -35,7 +37,12 @@ func uploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.C
 	}
 	defer file.Close()
 
-	objectName := header.Filename
+	// Generate unique object name using current time
+	ext := filepath.Ext(header.Filename)
+	base := strings.TrimSuffix(header.Filename, ext)
+	timestamp := time.Now().Format("20060102_150405")
+	objectName := fmt.Sprintf("%s_%s%s", base, timestamp, ext)
+
 	contentType := header.Header.Get("Content-Type")
 	bucketName := cfg.MinioBucket
 	minioEndpoint := cfg.MinioEndpoint

@@ -10,7 +10,7 @@ import (
 type BBoxRepository interface {
 	Create(bbox *model.BBoxMetaDB) error
 	GetByID(id uint) (*model.BBoxMetaDB, error)
-	GetAll() ([]model.BBoxMetaDB, error)
+	GetAllByExamID(examID uint) ([]model.BBoxMetaDB, error)
 	Update(bbox *model.BBoxMetaDB) error
 	Delete(id uint) error
 }
@@ -24,7 +24,6 @@ var (
 	once         sync.Once
 )
 
-// GetBBoxRepository returns a singleton instance of the repository
 func GetBBoxRepository(db *gorm.DB) BBoxRepository {
 	once.Do(func() {
 		repoInstance = &bboxRepo{db: db}
@@ -42,9 +41,9 @@ func (r *bboxRepo) GetByID(id uint) (*model.BBoxMetaDB, error) {
 	return &bbox, err
 }
 
-func (r *bboxRepo) GetAll() ([]model.BBoxMetaDB, error) {
+func (r *bboxRepo) GetAllByExamID(examID uint) ([]model.BBoxMetaDB, error) {
 	var bboxes []model.BBoxMetaDB
-	err := r.db.Find(&bboxes).Error
+	err := r.db.Where("exam_id = ?", examID).Find(&bboxes).Error
 	return bboxes, err
 }
 

@@ -8,17 +8,18 @@ import (
 type BBoxService interface {
 	Create(meta *model.BBoxMetaDB) error
 	GetByID(id uint) (*model.BBoxMetaDB, error)
-	GetAll() ([]model.BBoxMetaDB, error)
+	GetAllByExamID(id uint) ([]model.BBoxMetaDB, error)
 	Update(meta *model.BBoxMetaDB) error
 	Delete(id uint) error
 }
 
 type bboxService struct {
-	repo repository.BBoxRepository
+	repo     repository.BBoxRepository
+	examRepo *repository.ExamRepository
 }
 
-func NewBBoxService(repo repository.BBoxRepository) BBoxService {
-	return &bboxService{repo: repo}
+func NewBBoxService(repo repository.BBoxRepository, examRepository *repository.ExamRepository) BBoxService {
+	return &bboxService{repo: repo, examRepo: examRepository}
 }
 
 func (s *bboxService) Create(meta *model.BBoxMetaDB) error {
@@ -29,8 +30,13 @@ func (s *bboxService) GetByID(id uint) (*model.BBoxMetaDB, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *bboxService) GetAll() ([]model.BBoxMetaDB, error) {
-	return s.repo.GetAll()
+func (s *bboxService) GetAllByExamID(id uint) ([]model.BBoxMetaDB, error) {
+	_, err := s.examRepo.GetByID(id)
+	if err != nil {
+		return []model.BBoxMetaDB{}, err
+	}
+
+	return s.repo.GetAllByExamID(id)
 }
 
 func (s *bboxService) Update(meta *model.BBoxMetaDB) error {

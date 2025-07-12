@@ -12,7 +12,7 @@ import (
 )
 
 func SetupAnswerRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config, minio *storage.MinioStorage) {
-	answerRepository := repository.NewAnswerRepository(db)
+	answerRepository := repository.GetAnswerRepository(db)
 	answerService := service.NewAnswerService(answerRepository, minio)
 	handler := delivery.NewAnswerHandler(answerService)
 
