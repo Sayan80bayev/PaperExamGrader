@@ -4,6 +4,7 @@ import (
 	"PaperExamGrader/internal/model"
 	"PaperExamGrader/internal/repository"
 	"PaperExamGrader/internal/storage"
+	"PaperExamGrader/internal/transport/request"
 	"PaperExamGrader/pkg/logging"
 	"bytes"
 	"encoding/json"
@@ -291,7 +292,7 @@ func (m *ManualCropper) uploadBytesAsFile(data []byte, filename string) (string,
 	return m.fileStorage.UploadFile(reader, header)
 }
 
-func FromBBoxMetaDB(dbMeta model.BBoxMetaDB) (BBoxMeta, error) {
+func FromBBoxRequest(dbMeta request.BBoxMetaDB) (BBoxMeta, error) {
 	var arr [4]float64
 	err := json.Unmarshal(dbMeta.BBoxPercent, &arr)
 	if err != nil {

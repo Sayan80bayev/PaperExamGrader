@@ -14,7 +14,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		Cfg:    cfg,
 	}
 	SetupBBoxRoutes(r, db)
-	SetupManualCutterRoutes(r)
+	SetupManualCutterRoutes(r, db, minio)
 	SetupExamRoutes(r, db, cfg)
 	SetupAnswerRoutes(r, db, cfg, minio)
 }

@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS exams (
 
 CREATE TABLE IF NOT EXISTS answers (
                                      id SERIAL PRIMARY KEY,
-                                     student_id INTEGER NOT NULL,
                                      exam_id INTEGER NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
     grade REAL,
     pdf_url TEXT NOT NULL,

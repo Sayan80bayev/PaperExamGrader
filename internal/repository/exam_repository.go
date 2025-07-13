@@ -41,8 +41,8 @@ func (r *ExamRepository) Delete(id uint) error {
 	return r.db.Delete(&model.Exam{}, id).Error
 }
 
-func (r *ExamRepository) List() ([]model.Exam, error) {
-	var classes []model.Exam
-	err := r.db.Find(&classes).Error
-	return classes, err
+func (r *ExamRepository) GetAllByUserID(userID uint) ([]model.Exam, error) {
+	var exams []model.Exam
+	err := r.db.Where("instructor_id = ?", userID).Find(&exams).Error
+	return exams, err
 }

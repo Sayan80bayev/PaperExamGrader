@@ -14,7 +14,7 @@ type ImageService struct {
 
 func NewImageService(db *gorm.DB) *ImageService {
 	return &ImageService{
-		repo: repository.NewImageRepository(db),
+		repo: repository.GetImageRepository(db),
 	}
 }
 

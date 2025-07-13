@@ -110,7 +110,13 @@ func (h *ExamHandler) Delete(c *gin.Context) {
 
 // List returns all exames
 func (h *ExamHandler) List(c *gin.Context) {
-	exams, err := h.service.List()
+	instructorId, exists := c.Get("user_id")
+	if exists == false {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	}
+
+	var instructorIdUint = instructorId.(uint)
+	exams, err := h.service.List(instructorIdUint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

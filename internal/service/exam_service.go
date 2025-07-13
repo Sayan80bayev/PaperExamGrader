@@ -82,8 +82,8 @@ func (s *ExamService) Delete(id uint, instructorId uint) error {
 	return s.repo.Delete(id)
 }
 
-func (s *ExamService) List() ([]response.Exam, error) {
-	examModels, err := s.repo.List()
+func (s *ExamService) List(id uint) ([]response.Exam, error) {
+	examModels, err := s.repo.GetAllByUserID(id)
 	if err != nil {
 		return nil, err
 	}

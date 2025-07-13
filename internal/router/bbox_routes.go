@@ -17,7 +17,7 @@ func SetupBBoxRoutes(r *gin.Engine, db *gorm.DB) {
 	api := r.Group("/api/bboxes")
 	{
 		api.POST("", bboxHandler.Create)
-		api.GET("/:ud", bboxHandler.GetAllByExamID)
+		api.GET("/list/:id", bboxHandler.GetAllByExamID)
 		api.GET("/:id", bboxHandler.GetByID)
 		api.PUT("/:id", bboxHandler.Update)
 		api.DELETE("/:id", bboxHandler.Delete)

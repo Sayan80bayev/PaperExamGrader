@@ -16,7 +16,7 @@ type ImageRepository struct {
 var imageRepoInstance *ImageRepository
 var imageRepoOnce sync.Once
 
-func NewImageRepository(db *gorm.DB) *ImageRepository {
+func GetImageRepository(db *gorm.DB) *ImageRepository {
 	imageRepoOnce.Do(func() {
 		imageRepoInstance = &ImageRepository{db: db}
 	})
