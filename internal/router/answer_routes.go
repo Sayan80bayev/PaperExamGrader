@@ -19,6 +19,7 @@ func SetupAnswerRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config, minio *st
 	answerGroup := r.Group("/answers", middleware.AuthMiddleware(cfg.JWTSecret))
 	{
 		answerGroup.POST("/upload", handler.Upload)
+		answerGroup.POST("/upload_zip", handler.UploadFromZip)
 		answerGroup.GET("/:id", handler.GetByID)
 		answerGroup.GET("/exam/:exam_id", handler.GetByExamID)
 		answerGroup.PUT("/:id/grade", handler.UpdateGrade)

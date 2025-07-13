@@ -31,7 +31,7 @@ func main() {
 	r.RedirectTrailingSlash = false
 	r.Use(gin.Recovery())
 	r.Use(logging.Middleware)
-	router.SetupRoutes(r, bs.DB, bs.Config)
+	router.SetupRoutes(r, bs.DB, bs.Config, bs.Minio)
 
 	logger.Infof("🚀 Server is running on port %s", bs.Config.Port)
 	err = r.Run(":" + bs.Config.Port)

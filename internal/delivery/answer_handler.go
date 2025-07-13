@@ -3,10 +3,26 @@ package delivery
 import (
 	"PaperExamGrader/internal/service"
 	"PaperExamGrader/internal/transport/response"
+	"archive/zip"
+	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"strconv"
+	"strings"
 )
+
+// 👇 Custom type to implement multipart.File
+type readSeekCloser struct {
+	*bytes.Reader
+}
+
+func (r *readSeekCloser) Close() error {
+	return nil
+}
 
 type AnswerHandler struct {
 	answerService *service.AnswerService
@@ -45,6 +61,93 @@ func (h *AnswerHandler) Upload(c *gin.Context) {
 		Grade:  answer.Grade,
 	}
 	c.JSON(http.StatusOK, resp)
+}
+
+// ✅ POST /answers/upload_zip?exam_id=1
+func (h *AnswerHandler) UploadFromZip(c *gin.Context) {
+	examIDStr := c.Query("exam_id")
+	examID, err := strconv.Atoi(examIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid exam_id"})
+		return
+	}
+
+	zipFile, _, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to get zip file"})
+		return
+	}
+	defer zipFile.Close()
+
+	// Read ZIP into memory
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, zipFile); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read zip file"})
+		return
+	}
+
+	zipReader, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid zip file"})
+		return
+	}
+
+	var responses []response.AnswerResponse
+
+	for _, file := range zipReader.File {
+		if file.FileInfo().IsDir() {
+			continue // skip directories
+		}
+
+		if strings.HasPrefix(file.Name, "__MACOSX/") || strings.HasPrefix(file.Name, "._") || strings.Contains(file.Name, "/._") {
+			continue
+		}
+
+		f, err := file.Open()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to open file in zip: %s", file.Name)})
+			return
+		}
+
+		// Copy file content to memory
+		fileCopy := bytes.NewBuffer(nil)
+		if _, err := io.Copy(fileCopy, f); err != nil {
+			_ = f.Close()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to read file: %s", file.Name)})
+			return
+		}
+		_ = f.Close()
+
+		// Wrap bytes.Reader to satisfy multipart.File
+		reader := bytes.NewReader(fileCopy.Bytes())
+		multipartFile := &readSeekCloser{Reader: reader}
+
+		// Create fake multipart.FileHeader
+		fileHeader := &multipart.FileHeader{
+			Filename: file.Name,
+			Size:     int64(file.UncompressedSize64),
+			Header:   make(textproto.MIMEHeader),
+		}
+		fileHeader.Header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, file.Name))
+		fileHeader.Header.Set("Content-Type", "application/octet-stream")
+
+		// Upload each file
+		answer, err := h.answerService.UploadAnswer(multipartFile, fileHeader, uint(examID))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to upload: %s", file.Name)})
+			return
+		}
+
+		resp := response.AnswerResponse{
+			ID:     answer.ID,
+			ExamID: answer.ExamID,
+			PdfURL: answer.PdfURL,
+			Grade:  answer.Grade,
+		}
+		responses = append(responses, resp)
+	}
+
+	c.JSON(http.StatusOK, responses)
 }
 
 // ✅ GET /answers/:id
@@ -96,7 +199,6 @@ func (h *AnswerHandler) GetByExamID(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, resp)
-
 }
 
 // ✅ PUT /answers/:id/grade
