@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Main App DB
   db:
@@ -35,7 +33,7 @@ services:
     ports:
       - "8082:8082"
     build:
-      context: /Users/sayanseksenbaev/Programming/go-project/services/authService
+      context: C:\Users\Mykty\GolandProjects\authService\
       dockerfile: Dockerfile
     container_name: authservice
     env_file:
@@ -59,26 +57,26 @@ services:
       - "5433:5432"
     volumes:
       - auth_db:/var/lib/postgresql/data
-#  paper_exam_grader:
-#    image: paper_exam_grader:latest
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: paper_exam_grader
-#    ports:
-#      - "8081:8081"
-#    depends_on:
-#      - db
-#      - minio
-#    environment:
-#      DATABASE_URL: ${DATABASE_URL}
-#      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-#      MINIO_ACCESS_KEY: ${ACCESS_KEY}
-#      MINIO_SECRET_KEY: ${SECRET_KEY}
-#      JWT_SECRET: ${JWT_SECRET}
-#      PORT: ${PORT}
-#    env_file:
-#      - .env
+  paper_exam_grader:
+    image: paper_exam_grader:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paper_exam_grader
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+      - minio
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${ACCESS_KEY}
+      MINIO_SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+    env_file:
+      - .env
 
 volumes:
   database:

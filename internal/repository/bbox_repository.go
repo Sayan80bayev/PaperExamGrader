@@ -2,55 +2,22 @@ package repository
 
 import (
 	"PaperExamGrader/internal/model"
-	"sync"
 
 	"gorm.io/gorm"
 )
 
 type BBoxRepository interface {
-	Create(bbox *model.BBoxMetaDB) error
-	GetByID(id uint) (*model.BBoxMetaDB, error)
-	GetAllByExamID(examID uint) ([]model.BBoxMetaDB, error)
-	Update(bbox *model.BBoxMetaDB) error
-	Delete(id uint) error
+	CreateMany(bboxes []model.BBoxMetaDB) error
 }
 
-type bboxRepo struct {
+type bboxRepository struct {
 	db *gorm.DB
 }
 
-var (
-	repoInstance BBoxRepository
-	once         sync.Once
-)
-
 func GetBBoxRepository(db *gorm.DB) BBoxRepository {
-	once.Do(func() {
-		repoInstance = &bboxRepo{db: db}
-	})
-	return repoInstance
+	return &bboxRepository{db}
 }
 
-func (r *bboxRepo) Create(bbox *model.BBoxMetaDB) error {
-	return r.db.Create(bbox).Error
-}
-
-func (r *bboxRepo) GetByID(id uint) (*model.BBoxMetaDB, error) {
-	var bbox model.BBoxMetaDB
-	err := r.db.First(&bbox, id).Error
-	return &bbox, err
-}
-
-func (r *bboxRepo) GetAllByExamID(examID uint) ([]model.BBoxMetaDB, error) {
-	var bboxes []model.BBoxMetaDB
-	err := r.db.Where("exam_id = ?", examID).Find(&bboxes).Error
-	return bboxes, err
-}
-
-func (r *bboxRepo) Update(bbox *model.BBoxMetaDB) error {
-	return r.db.Save(bbox).Error
-}
-
-func (r *bboxRepo) Delete(id uint) error {
-	return r.db.Delete(&model.BBoxMetaDB{}, id).Error
+func (r *bboxRepository) CreateMany(bboxes []model.BBoxMetaDB) error {
+	return r.db.Create(&bboxes).Error
 }

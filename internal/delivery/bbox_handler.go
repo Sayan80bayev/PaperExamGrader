@@ -1,86 +1,61 @@
 package delivery
 
 import (
-	"PaperExamGrader/internal/model"
 	"PaperExamGrader/internal/service"
-	"encoding/json"
+	"PaperExamGrader/internal/transport/request"
 	"net/http"
 	"strconv"
-
+	
 	"github.com/gin-gonic/gin"
 )
 
 type BBoxHandler struct {
-	service service.BBoxService
+	service *service.BBoxService
 }
 
-func NewBBoxHandler(service service.BBoxService) *BBoxHandler {
+func NewBBoxHandler(service *service.BBoxService) *BBoxHandler {
 	return &BBoxHandler{service: service}
 }
 
-func (h *BBoxHandler) Create(c *gin.Context) {
-	var input model.BBoxMetaDB
-	if err := c.ShouldBindJSON(&input); err != nil {
+func (h *BBoxHandler) CreateTemplate(c *gin.Context) {
+	var req request.CreateBBoxTemplateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	// Validate bbox size
-	var bboxArr []float64
-	if err := json.Unmarshal(input.BBoxPercent, &bboxArr); err != nil || len(bboxArr) != 4 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "BBoxPercent must be a JSON array of 4 float64 values"})
-		return
-	}
-
-	if err := h.service.Create(&input); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, input)
-}
-
-func (h *BBoxHandler) GetAllByExamID(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	idUint := uint(id)
-
-	entries, err := h.service.GetAllByExamID(idUint)
+	
+	instructorId := c.GetUint("user_id")
+	
+	templateResponse, err := h.service.CreateTemplateWithBBoxes(req, instructorId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, entries)
+	
+	c.JSON(http.StatusCreated, templateResponse)
 }
 
-func (h *BBoxHandler) GetByID(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	entry, err := h.service.GetByID(uint(id))
+func (h *BBoxHandler) GetTemplatesByExamID(c *gin.Context) {
+	examID, _ := strconv.Atoi(c.Param("id"))
+	instructorId := c.GetUint("user_id")
+	
+	templates, err := h.service.GetTemplatesByExamID(uint(examID), instructorId)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, entry)
+	
+	c.JSON(http.StatusOK, templates)
 }
 
-func (h *BBoxHandler) Update(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	var input model.BBoxMetaDB
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (h *BBoxHandler) DeleteTemplate(c *gin.Context) {
+	templateID, _ := strconv.Atoi(c.Param("id"))
+	instructorId := c.GetUint("user_id")
+	
+	if err := h.service.DeleteTemplate(uint(templateID), instructorId); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
-	input.ID = uint(id)
-	if err := h.service.Update(&input); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, input)
-}
-
-func (h *BBoxHandler) Delete(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if err := h.service.Delete(uint(id)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	
 	c.Status(http.StatusNoContent)
 }

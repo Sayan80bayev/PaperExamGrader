@@ -3,46 +3,117 @@ package service
 import (
 	"PaperExamGrader/internal/model"
 	"PaperExamGrader/internal/repository"
+	"PaperExamGrader/internal/transport/request"
+	"PaperExamGrader/internal/transport/response"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
-type BBoxService interface {
-	Create(meta *model.BBoxMetaDB) error
-	GetByID(id uint) (*model.BBoxMetaDB, error)
-	GetAllByExamID(id uint) ([]model.BBoxMetaDB, error)
-	Update(meta *model.BBoxMetaDB) error
-	Delete(id uint) error
+type BBoxService struct {
+	db           *gorm.DB
+	bboxRepo     repository.BBoxRepository
+	templateRepo repository.BBoxTemplateRepository
+	examRepo     *repository.ExamRepository
 }
 
-type bboxService struct {
-	repo     repository.BBoxRepository
-	examRepo *repository.ExamRepository
+func NewBBoxService(db *gorm.DB, bboxRepo repository.BBoxRepository, templateRepo repository.BBoxTemplateRepository, examRepository *repository.ExamRepository) *BBoxService {
+	return &BBoxService{
+		db:           db,
+		bboxRepo:     bboxRepo,
+		templateRepo: templateRepo,
+		examRepo:     examRepository,
+	}
 }
 
-func NewBBoxService(repo repository.BBoxRepository, examRepository *repository.ExamRepository) BBoxService {
-	return &bboxService{repo: repo, examRepo: examRepository}
-}
-
-func (s *bboxService) Create(meta *model.BBoxMetaDB) error {
-	return s.repo.Create(meta)
-}
-
-func (s *bboxService) GetByID(id uint) (*model.BBoxMetaDB, error) {
-	return s.repo.GetByID(id)
-}
-
-func (s *bboxService) GetAllByExamID(id uint) ([]model.BBoxMetaDB, error) {
-	_, err := s.examRepo.GetByID(id)
+func (s *BBoxService) CreateTemplateWithBBoxes(req request.CreateBBoxTemplateRequest, instructorId uint) (*response.BBoxTemplateResponse, error) {
+	exam, err := s.examRepo.GetByID(req.ExamID)
 	if err != nil {
-		return []model.BBoxMetaDB{}, err
+		return nil, err
+	}
+	if exam.InstructorID != instructorId {
+		return nil, errors.New("you are not the owner of this exam")
 	}
 
-	return s.repo.GetAllByExamID(id)
+	template := &model.BBoxTemplate{
+		ExamID: req.ExamID,
+		Name:   req.Name,
+	}
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(template).Error; err != nil {
+			return err
+		}
+
+		for i := range req.BBoxes {
+			req.BBoxes[i].TemplateID = template.ID
+		}
+
+		if err := tx.Create(&req.BBoxes).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.BBoxTemplateResponse{
+		ID:        template.ID,
+		Name:      template.Name,
+		ExamID:    template.ExamID,
+		CreatedAt: template.CreatedAt,
+	}, nil
 }
 
-func (s *bboxService) Update(meta *model.BBoxMetaDB) error {
-	return s.repo.Update(meta)
+func (s *BBoxService) GetTemplatesByExamID(examID, instructorID uint) ([]response.BBoxTemplateResponse, error) {
+	exam, err := s.examRepo.GetByID(examID)
+	if err != nil {
+		return nil, err
+	}
+	if exam.InstructorID != instructorID {
+		return nil, errors.New("you are not the owner of this exam")
+	}
+
+	templates, err := s.templateRepo.GetTemplatesByExamID(examID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]response.BBoxTemplateResponse, len(templates))
+	for i, t := range templates {
+		res[i] = response.BBoxTemplateResponse{
+			ID:        t.ID,
+			Name:      t.Name,
+			ExamID:    t.ExamID,
+			CreatedAt: t.CreatedAt,
+		}
+	}
+	return res, nil
 }
 
-func (s *bboxService) Delete(id uint) error {
-	return s.repo.Delete(id)
+func (s *BBoxService) DeleteTemplate(id, instructorID uint) error {
+	template, err := s.templateRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	exam, err := s.examRepo.GetByID(template.ExamID)
+	if err != nil {
+		return err
+	}
+	if exam.InstructorID != instructorID {
+		return errors.New("you are not the owner of this exam")
+	}
+
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("template_id = ?", id).Delete(&model.BBoxMetaDB{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(&model.BBoxTemplate{}, id).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
