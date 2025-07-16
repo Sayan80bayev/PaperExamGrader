@@ -165,13 +165,25 @@ func (h *AnswerHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	resp := response.AnswerResponse{
-		ID:     answer.ID,
-		ExamID: answer.ExamID,
-		PdfURL: answer.PdfURL,
-		Grade:  answer.Grade,
+	c.JSON(http.StatusOK, answer)
+}
+
+// ✅ GET /answers/:id
+func (h *AnswerHandler) GetWithImagesByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
 	}
-	c.JSON(http.StatusOK, resp)
+
+	answer, err := h.answerService.GetAnswerWithImagesByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, answer)
 }
 
 // ✅ GET /answers/exam/:exam_id
@@ -189,16 +201,24 @@ func (h *AnswerHandler) GetByExamID(c *gin.Context) {
 		return
 	}
 
-	var resp []response.AnswerResponse
-	for _, ans := range answers {
-		resp = append(resp, response.AnswerResponse{
-			ID:     ans.ID,
-			ExamID: ans.ExamID,
-			PdfURL: ans.PdfURL,
-			Grade:  ans.Grade,
-		})
+	c.JSON(http.StatusOK, answers)
+}
+
+func (h *AnswerHandler) GetImagesByExamID(c *gin.Context) {
+	examIDStr := c.Param("exam_id")
+	examID, err := strconv.Atoi(examIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid exam_id"})
+		return
 	}
-	c.JSON(http.StatusOK, resp)
+
+	answers, err := h.answerService.GetAnswersWithImagesByExam(uint(examID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve answers"})
+		return
+	}
+
+	c.JSON(http.StatusOK, answers)
 }
 
 // ✅ PUT /answers/:id/grade

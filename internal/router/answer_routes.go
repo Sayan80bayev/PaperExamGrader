@@ -21,7 +21,9 @@ func SetupAnswerRoutes(r *gin.Engine, db *gorm.DB, cfg *config.Config, minio *st
 		answerGroup.POST("/upload", handler.Upload)
 		answerGroup.POST("/upload_zip", handler.UploadFromZip)
 		answerGroup.GET("/:id", handler.GetByID)
+		answerGroup.GET("/images/:id", handler.GetWithImagesByID)
 		answerGroup.GET("/exam/:exam_id", handler.GetByExamID)
+		answerGroup.GET("/exam/images/:exam_id", handler.GetImagesByExamID)
 		answerGroup.PUT("/:id/grade", handler.UpdateGrade)
 		answerGroup.DELETE("/:id", handler.Delete)
 	}

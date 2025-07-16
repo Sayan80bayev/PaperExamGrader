@@ -41,10 +41,26 @@ func (r *AnswerRepository) GetByExamID(examID uint) ([]model.Answer, error) {
 	return answers, nil
 }
 
+func (r *AnswerRepository) GetWithImagesByExamID(examID uint) ([]model.Answer, error) {
+	var answers []model.Answer
+	if err := r.db.Preload("Images").Where("exam_id = ?", examID).Find(&answers).Error; err != nil {
+		return nil, err
+	}
+	return answers, nil
+}
+
 // ✅ Получение одного ответа по ID
 func (r *AnswerRepository) GetByID(id uint) (*model.Answer, error) {
 	var answer model.Answer
 	if err := r.db.First(&answer, id).Error; err != nil {
+		return nil, err
+	}
+	return &answer, nil
+}
+
+func (r *AnswerRepository) GetWithImagesByID(id uint) (*model.Answer, error) {
+	var answer model.Answer
+	if err := r.db.Preload("Images").First(&answer, id).Error; err != nil {
 		return nil, err
 	}
 	return &answer, nil
