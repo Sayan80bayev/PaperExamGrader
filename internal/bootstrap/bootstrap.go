@@ -4,6 +4,7 @@ import (
 	"PaperExamGrader/internal/storage"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/sirupsen/logrus"
 
@@ -25,7 +26,7 @@ type Container struct {
 
 func Init() (*Container, error) {
 	logger := logging.GetLogger()
-
+	fmt.Println("\n .oooooo..o       .o.       oooooo   oooo       .o.       ooooo      ooo \nd8P'    `Y8      .888.       `888.   .8'       .888.      `888b.     `8' \nY88bo.          .8\"888.       `888. .8'       .8\"888.      8 `88b.    8  \n `\"Y8888o.     .8' `888.       `888.8'       .8' `888.     8   `88b.  8  \n     `\"Y88b   .88ooo8888.       `888'       .88ooo8888.    8     `88b.8  \noo     .d8P  .8'     `888.       888       .8'     `888.   8       `888  \n8\"\"88888P'  o88o     o8888o     o888o     o88o     o8888o o8o        `8  \n                                                                         \n")
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		logger.Fatal("Error loading configuration:", err)
