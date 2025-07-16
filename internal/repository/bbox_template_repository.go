@@ -27,7 +27,7 @@ func (r *bboxTemplateRepository) CreateTemplate(template *model.BBoxTemplate) er
 
 func (r *bboxTemplateRepository) GetTemplatesByExamID(examID uint) ([]model.BBoxTemplate, error) {
 	var templates []model.BBoxTemplate
-	if err := r.db.Where("exam_id = ?", examID).Find(&templates).Error; err != nil {
+	if err := r.db.Preload("BBoxes").Where("exam_id = ?", examID).Find(&templates).Error; err != nil {
 		return nil, err
 	}
 	return templates, nil

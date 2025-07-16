@@ -26,7 +26,7 @@ func NewBBoxService(db *gorm.DB, bboxRepo repository.BBoxRepository, templateRep
 	}
 }
 
-func (s *BBoxService) CreateTemplateWithBBoxes(req request.CreateBBoxTemplateRequest, instructorId uint) (*response.BBoxTemplateResponse, error) {
+func (s *BBoxService) CreateTemplateWithBBoxes(req request.CreateBBoxTemplateRequest, instructorId uint) (*response.BBoxTemplate, error) {
 	exam, err := s.examRepo.GetByID(req.ExamID)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (s *BBoxService) CreateTemplateWithBBoxes(req request.CreateBBoxTemplateReq
 		return nil, err
 	}
 
-	return &response.BBoxTemplateResponse{
+	return &response.BBoxTemplate{
 		ID:        template.ID,
 		Name:      template.Name,
 		ExamID:    template.ExamID,
@@ -68,7 +68,7 @@ func (s *BBoxService) CreateTemplateWithBBoxes(req request.CreateBBoxTemplateReq
 	}, nil
 }
 
-func (s *BBoxService) GetTemplatesByExamID(examID, instructorID uint) ([]response.BBoxTemplateResponse, error) {
+func (s *BBoxService) GetTemplatesByExamID(examID, instructorID uint) ([]response.BBoxTemplate, error) {
 	exam, err := s.examRepo.GetByID(examID)
 	if err != nil {
 		return nil, err
@@ -82,13 +82,14 @@ func (s *BBoxService) GetTemplatesByExamID(examID, instructorID uint) ([]respons
 		return nil, err
 	}
 
-	res := make([]response.BBoxTemplateResponse, len(templates))
+	res := make([]response.BBoxTemplate, len(templates))
 	for i, t := range templates {
-		res[i] = response.BBoxTemplateResponse{
+		res[i] = response.BBoxTemplate{
 			ID:        t.ID,
 			Name:      t.Name,
 			ExamID:    t.ExamID,
 			CreatedAt: t.CreatedAt,
+			BBoxes:    t.BBoxes,
 		}
 	}
 	return res, nil
